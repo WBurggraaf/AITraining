@@ -1,4 +1,4 @@
-# Training: AI-assisted CLI Engineering — Build, Validate, Observe en Controleren zonder zelf te programmeren
+# Training: AI-assisted CLI Engineering — Build, Validate, Observe, Test Coverage en Controleren zonder zelf te programmeren
 
 ## Korte samenvatting
 
@@ -9,6 +9,8 @@ De belangrijkste regel:
 > **Je programmeert niets zelf. Je gebruikt de CLI-agent om code, scripts, tests, documentatie, build-pipelines, launchers, clients, load tests en analyzers te maken. Jouw werk is sturen, controleren, valideren en bijsturen.**
 
 De training draait om **true validation**: niet vertrouwen op mooie AI-uitleg, maar de CLI-agent laten bouwen, draaien, falen, loggen, meten, opnieuw proberen en bewijs produceren via console output, logs, metrics, traces, reports en documentatie.
+
+Het IRC/ngircd voorbeeld is bewust een **out-of-comfort-zone voorbeeld**. Het is niet het kernleerdoel van de training. Dezelfde aanpak had ook toegepast kunnen worden op vrijwel elk GitHub source project: PyTorch, een frontend application, een backend service, een serverless project, een CLI tool, een mobile app, een data pipeline, een game engine, een library, of letterlijk bijna elke codebase waar build/run/test/observe mogelijk is.
 
 ---
 
@@ -48,6 +50,33 @@ flowchart TD
     K -- Niet overtuigend --> B
     K -- Overtuigend --> L[Stap afgerond]
 ```
+
+### De repository is vervangbaar
+
+In deze training gebruiken we `ngircd` en IRC als concreet voorbeeld omdat het een echte server, protocol, client, launcher, load test en analyzer mogelijk maakt. Maar dit is geen IRC-training.
+
+Dezelfde loop geldt voor elk projecttype:
+
+```text
+GitHub source project → agent ontdekt build/run/test → agent maakt observability → agent valideert → agent documenteert → human controleert bewijs
+```
+
+Voorbeelden die even goed passen:
+
+- PyTorch of een andere machine learning library
+- frontend application, bijvoorbeeld React, Vue, Angular of Svelte
+- backend service, bijvoorbeeld Node.js, Java, .NET, Go, Rust of Python
+- serverless project, bijvoorbeeld AWS Lambda, Azure Functions of Cloudflare Workers
+- mobile app
+- CLI tool
+- SDK of library
+- data pipeline
+- infrastructure-as-code repository
+- game, simulation of embedded project
+
+De kernvraag blijft steeds hetzelfde:
+
+> Kan de CLI-agent een reproduceerbare feedback loop maken waarin build, run, test, logs, metrics, traces, reports en docs aantonen wat er werkt?
 
 ### Wat jij doet tijdens de loop
 
@@ -122,8 +151,9 @@ prompt → build/run → observe → diagnose → improve → validate → docum
 | 00:55–01:10 | Skill genereren | Agent maakt `SKILL.md` of `AGENTS.md` |
 | 01:10–01:25 | Local CI/CD simulation | GitHub Actions-style pipeline lokaal laten werken |
 | 01:25–01:40 | Launcher scripts | Bash/cmd.exe entry points laten maken |
-| 01:40–01:55 | IRC client en load test | Agent maakt client en 30s load test |
-| 01:55–02:00 | Wrap-up | Wat werkte, wat faalde, hoe valideerde je? |
+| 01:40–01:50 | Out-of-comfort-zone feature en validation scenario | Agent maakt bijvoorbeeld IRC client + 30s load test, of een equivalent scenario voor een ander project |
+| 01:50–01:57 | Coverage, trace gaps en usage controls | Agent genereert tests, kijkt naar uncovered/untraced paths en past tokenreductie toe |
+| 01:57–02:00 | Wrap-up | Wat werkte, wat faalde, hoe valideerde je? |
 
 Als een agent achterloopt, rond dan af met wat wél bewezen is. Een gedeeltelijk gevalideerde workflow is beter dan een grote claim zonder bewijs.
 
@@ -142,10 +172,12 @@ Na deze training kun je:
 7. Een project-specifieke `SKILL.md` of `AGENTS.md` laten genereren.
 8. Een lokale GitHub Actions-style CI/CD simulation laten maken en draaien.
 9. Launcher scripts laten maken voor bash en cmd.exe.
-10. Een IRC client laten bouwen op basis van RFC 1459.
-11. Een 30-seconden load test laten uitvoeren.
-12. Een analyzer laten maken voor underutilization, waiting patterns en bottlenecks.
-13. Het verschil herkennen tussen AI-output en gevalideerde AI-output.
+10. Een out-of-comfort-zone feature laten bouwen op basis van externe specificaties, waarbij IRC/RFC 1459 slechts één voorbeeld is.
+11. Een 30-seconden load test of vergelijkbare stress/validation scenario laten uitvoeren.
+12. Unit tests laten genereren en uitbreiden richting 100% code coverage, inclusief happy flow tests voor nog niet getraceerde code paths.
+13. Een analyzer laten maken voor underutilization, waiting patterns en bottlenecks.
+14. Tokenreductie technieken en usage controls toepassen tijdens lange agent-runs.
+15. Het verschil herkennen tussen AI-output en gevalideerde AI-output.
 
 ---
 
@@ -755,11 +787,15 @@ nc -vz 127.0.0.1 6667
 
 ---
 
-# Module 10 — IRC client bouwen met RFC 1459
+# Module 10 — Out-of-comfort-zone feature bouwen, met IRC als voorbeeld
 
 ## Doel
 
-Laat de CLI-agent een functionele IRC client bouwen die kan verbinden met de lokaal draaiende `ngircd` server.
+Laat de CLI-agent een feature bouwen die buiten je dagelijkse comfort zone ligt, op basis van echte projectinformatie en externe specificaties. In dit cursusdocument is IRC het voorbeeld, maar de onderliggende oefening is generiek.
+
+Voor een frontend project kan dit bijvoorbeeld een browser-based smoke test zijn. Voor een backend project kan dit een API client of integration test zijn. Voor een serverless project kan dit een local invocation harness zijn. Voor een library kan dit een executable example of conformance test zijn.
+
+In het IRC voorbeeld bouwt de CLI-agent een functionele IRC client die kan verbinden met de lokaal draaiende `ngircd` server.
 
 RFC 1459 is de functionele referentie voor IRC. De client hoeft niet alles te implementeren, maar moet genoeg kunnen om te registreren, een channel te joinen, berichten te sturen, `PING`/`PONG` te doen en netjes af te sluiten.
 
@@ -782,7 +818,28 @@ De IRC client moet ondersteunen:
 - error reporting
 - command-line arguments
 
-## Prompt: IRC client
+## Generieke prompt: out-of-comfort-zone validation feature
+
+Gebruik deze prompt als je niet met IRC werkt:
+
+```text
+Build an out-of-comfort-zone validation feature for this repository.
+
+First inspect the project type, available runtime, existing scripts, tests, documentation, and build outputs. Then choose a practical feature or validation harness that proves the project can be exercised beyond a trivial build.
+
+Examples:
+- For a frontend application: create a local browser or headless smoke test that loads the app and validates a key user flow.
+- For a backend service: create a CLI/API client that calls core endpoints and validates responses.
+- For a serverless project: create a local invocation harness with representative events.
+- For a library: create executable examples and conformance-style tests.
+- For a protocol/server project: create a client or integration test based on the relevant protocol specification.
+
+Do not only write code. Create a runnable script, console app, or test harness, run it, inspect the output, fix failures, and document the validated workflow.
+
+Update `/docs/` and the relevant skill file with exact commands, observed output, limitations, and troubleshooting notes.
+```
+
+## Voorbeeldprompt: IRC client
 
 ```text
 Build a functional IRC client using RFC 1459 as the protocol reference and connect it to the local ngircd server.
@@ -816,11 +873,11 @@ Update `/docs/irc-client.md` and the relevant skill file with exact commands, ob
 
 ---
 
-# Module 11 — 30-seconden IRC load test
+# Module 11 — 30-seconden load test of validation stress scenario
 
 ## Doel
 
-Laat de CLI-agent een load test maken waarin meerdere clients ongeveer 30 seconden lang verschillende IRC messages naar de server sturen.
+Laat de CLI-agent een load test of vergelijkbaar stress/validation scenario maken. Voor IRC betekent dit meerdere clients die ongeveer 30 seconden lang verschillende IRC messages naar de server sturen. Voor andere projecttypes kan dit bijvoorbeeld API traffic, UI flow repetition, batch jobs, queue events, serverless invocations of library calls zijn.
 
 ## Requirements
 
@@ -914,7 +971,93 @@ cat logs/load-test/*/summary.json
 
 ---
 
-# Module 13 — Analyzer bouwen voor bottlenecks en waiting patterns
+# Module 13 — Unit tests genereren, coverage verhogen en untraced paths vinden
+
+## Doel
+
+Laat de CLI-agent test coverage systematisch verbeteren. Het doel is niet dat jij unit tests schrijft, maar dat de agent op basis van coverage output, trace logs en runtime observability ontdekt welke code paths nog onvoldoende gevalideerd zijn.
+
+De ambitie aan het einde is **100% code coverage waar praktisch haalbaar**, of anders een duidelijk, evidence-based verslag waarom 100% niet haalbaar of niet zinvol is voor bepaalde files, generated code, platform-specific branches of unreachable defensive code.
+
+## Belangrijk principe
+
+Coverage is geen doel op zichzelf. De agent moet vooral zoeken naar:
+
+- code paths zonder test coverage
+- code paths zonder trace/log bewijs
+- happy flow paths die nog niet door unit tests worden geraakt
+- branches die alleen via error handling geraakt worden
+- integration paths die beter via smoke/integration tests dan unit tests gevalideerd worden
+- dead code of unreachable code
+- generated files die uitgesloten moeten worden
+
+## Prompt: coverage en trace gaps
+
+```text
+Generate and improve unit tests for this repository until code coverage is as close to 100% as practical, preferably 100% for the code created during this training.
+
+Do not hand-wave coverage. First detect the language, test framework, coverage tooling, existing tests, and current coverage command. If no coverage tooling exists, add the smallest practical coverage setup for this environment.
+
+Run the current tests with coverage and inspect the uncovered files, uncovered lines, uncovered branches, and missing paths.
+
+Also inspect trace logs, runtime logs, and validation output from the launchers, CI simulation, client, load test, and analyzer. Identify code paths that do not show evidence in trace logs or console output. For those paths, add happy flow unit tests where appropriate.
+
+Workflow:
+1. Run the smallest meaningful test or coverage command.
+2. Save coverage output to a report file.
+3. Identify uncovered or untraced happy flow paths.
+4. Add focused unit tests for those paths.
+5. Rerun coverage.
+6. Repeat only while each iteration clearly improves coverage or validation quality.
+7. Avoid brittle tests that only assert implementation details.
+8. Prefer deterministic tests with clear assertions.
+9. Document exclusions and limitations honestly.
+10. Update `/docs/validation.md`, `/docs/testing-and-coverage.md`, and the relevant skill file.
+
+Completion criteria:
+- Unit tests exist for the training-created code.
+- Coverage command is documented.
+- Coverage report is generated.
+- Uncovered paths are listed.
+- Untraced paths are listed.
+- Happy flow tests are added for practical untraced paths.
+- Coverage reaches 100% where practical, or the remaining gap is explicitly justified.
+```
+
+## Verwachte artifacts
+
+```text
+docs/testing-and-coverage.md
+reports/coverage/
+reports/coverage/summary.txt
+reports/coverage/coverage.json
+reports/coverage/html/
+```
+
+Exacte namen hangen af van language/runtime.
+
+## Waar jij op let
+
+Controleer of de agent:
+
+- coverage echt draait
+- coverage output leest
+- niet alleen test files schrijft
+- uncovered lines noemt
+- trace/log gaps koppelt aan tests
+- 100% coverage niet claimt zonder report
+- exclusions uitlegt
+- docs bijwerkt
+
+## Voorbeeld bijstuurprompt
+
+```text
+You added tests, but I do not see a coverage report. Run the coverage command, show the uncovered lines or confirm 100% coverage from the actual report, then update `/docs/testing-and-coverage.md`.
+```
+
+---
+
+# Module 14 — Analyzer bouwen voor bottlenecks en waiting patterns
 
 ## Doel
 
@@ -981,6 +1124,136 @@ Run the analyzer on the latest load-test output. Inspect the report, improve the
 
 ---
 
+# Module 15 — Tokenreductie technieken en usage controls tijdens lange agent-runs
+
+## Doel
+
+Lange CLI-agent runs kunnen veel tokens, context en tijd gebruiken. In deze module leer je de agent te laten werken met usage controls: gerichte context, compacte summaries, artifact-based handoff en duidelijke stopcriteria.
+
+Het doel is niet om de agent minder goed te laten werken, maar om verspilling te voorkomen en controle te houden.
+
+## Waarom dit belangrijk is
+
+Een agent kan snel veel context vullen met:
+
+- lange build logs
+- repeated failures
+- grote file dumps
+- volledige test output
+- onnodige directory listings
+- lange chat summaries
+- speculatieve analyses
+- steeds opnieuw dezelfde uitleg
+
+Goede tokenreductie betekent:
+
+```text
+meer bewijs, minder ruis
+meer artifact references, minder copy-paste
+meer summaries, minder volledige logs
+meer targeted commands, minder brede scans
+```
+
+## Usage controls voor deelnemers
+
+Gebruik deze controls tijdens de training:
+
+1. Vraag de agent om korte progress updates.
+2. Vraag om alleen relevante log excerpts te tonen.
+3. Laat volledige logs naar files schrijven.
+4. Laat summaries in `/docs/` of `reports/` zetten.
+5. Vraag om `head`, `tail`, `grep`, targeted test commands en filtered traces.
+6. Vraag om geen grote files volledig te printen.
+7. Laat de agent een `current-state.md` bijwerken voor handoff.
+8. Laat de agent stopcriteria noemen voordat hij lange loops start.
+9. Laat de agent iedere retry motiveren.
+10. Gebruik context compaction als de CLI dit ondersteunt.
+
+## Prompt: tokenreductie en usage controls
+
+```text
+Apply token reduction and usage controls for the rest of this agent run.
+
+Do not dump large files, full logs, full build output, or repeated directory listings into the chat unless explicitly needed. Write verbose output to files under `logs/`, `reports/`, or `/docs/`, then show concise excerpts and exact file paths.
+
+Before long-running work, state:
+- the goal
+- the command or script that will run
+- expected output artifact paths
+- stop criteria
+- what will be summarized instead of pasted fully
+
+During debugging:
+- use targeted commands such as `tail`, `head`, `grep`, focused test selection, filtered traces, and summarized coverage output
+- avoid repeating the same failed command unless a specific change was made
+- summarize repeated errors once and link them to artifact paths
+- keep `/docs/current-state.md` updated with current status, blockers, next commands, and validation evidence
+
+When context becomes large, create or update:
+- `/docs/current-state.md`
+- `/docs/decision-log.md`
+- `/docs/open-issues.md`
+- `/docs/validation.md`
+
+If this CLI supports compaction, prepare a compact handoff summary before using it.
+
+Completion criteria:
+- Important evidence is stored in files.
+- Chat/console output remains concise but sufficient.
+- Repeated failures are summarized, not spammed.
+- Current state is recoverable from `/docs/current-state.md`.
+- Usage stays controlled without losing validation quality.
+```
+
+## Prompt: compact handoff summary
+
+Gebruik deze prompt vlak voor `/compact` of een nieuwe agent-run:
+
+```text
+Prepare a compact handoff summary for the next CLI agent context.
+
+Write `/docs/current-state.md` with:
+- repository root
+- current goal
+- completed steps
+- exact commands that succeeded
+- exact commands that failed
+- latest build status
+- latest test status
+- latest coverage status
+- latest launcher status
+- latest CI simulation status
+- latest load-test status
+- latest analyzer status
+- generated artifact paths
+- open issues
+- next recommended command
+- files that matter most
+
+Then print only a short summary and the path to `/docs/current-state.md`.
+```
+
+## Tekenen van slecht usage control
+
+Stuur bij als de agent:
+
+- volledige logs blijft plakken
+- steeds `find .` of `ls -R` over de hele repository doet
+- dezelfde error meerdere keren volledig herhaalt
+- lang blijft runnen zonder progress output
+- geen artifact paths geeft
+- geen stopcriteria noemt
+- claims maakt zonder files of command output
+
+## Bijstuurprompt
+
+```text
+Reduce output volume. Save full details to files, show only relevant excerpts, and update `/docs/current-state.md` with the current status and next command.
+```
+
+---
+
+
 # Capstone — Wat moet er aan het einde liggen?
 
 ## Scenario
@@ -1002,8 +1275,10 @@ AITraining/
 │       │   ├── launcher-workflow.md
 │       │   ├── irc-client.md
 │       │   ├── load-testing.md
+│       │   ├── testing-and-coverage.md
 │       │   ├── performance-analysis.md
-│       │   └── skills-index.md
+│       │   ├── skills-index.md
+│       │   └── current-state.md
 │       ├── SKILL.md
 │       ├── .github/
 │       │   └── workflows/
@@ -1039,7 +1314,11 @@ The validation should check:
 - load test exists and supports --help
 - analyzer exists and supports --help
 - a 30-second load-test output directory exists
+- unit tests and a coverage command exist
+- latest coverage report exists
+- uncovered or untraced paths are documented
 - a performance analysis report exists
+- `/docs/current-state.md` exists for token-efficient handoff
 
 Create a runnable validation script, run it, fix any issues found, and update `/docs/validation.md` with the command, output, and remaining limitations.
 ```
@@ -1182,6 +1461,14 @@ You have only written code. Do not stop there. Run the smallest meaningful valid
 [ ] logs opgeslagen
 [ ] metrics opgeslagen
 [ ] traces opgeslagen
+[ ] unit tests gegenereerd door de agent
+[ ] coverage command uitgevoerd
+[ ] coverage report opgeslagen
+[ ] 100% coverage gehaald waar praktisch, of gaps onderbouwd
+[ ] untraced happy flow paths geïdentificeerd
+[ ] happy flow unit tests toegevoegd voor praktische trace gaps
+[ ] tokenreductie/usage controls toegepast
+[ ] /docs/current-state.md gemaakt of bijgewerkt
 [ ] analyzer gemaakt
 [ ] analyzer report gegenereerd
 [ ] bottlenecks of limitations gedocumenteerd
@@ -1202,4 +1489,7 @@ You have only written code. Do not stop there. Run the smallest meaningful valid
 6. Welke docs waren later echt bruikbaar?
 7. Wat zou je toevoegen aan `SKILL.md` voor de volgende agent?
 8. Waar had je eerder om logs, metrics of traces moeten vragen?
-9. Wat is het verschil tussen “AI heeft het gemaakt” en “ik heb gevalideerd dat het werkt”?
+9. Welke uncovered of untraced paths waren verrassend?
+10. Waar verspilde de agent tokens of context?
+11. Welke usage control prompt hielp het meest?
+12. Wat is het verschil tussen “AI heeft het gemaakt” en “ik heb gevalideerd dat het werkt”?
